@@ -35,6 +35,7 @@ function clearStatus() {
   setText('[data-save-status]', '');
   setText('[data-summary-status]', '');
   setText('[data-import-status]', '');
+  setText('[data-editor-copy-status]', '');
 }
 
 function persistDraft() {
@@ -176,6 +177,7 @@ function openDialog(mode, title, description) {
   lastFocus = document.activeElement;
   find('[data-request-panel]').hidden = mode !== 'request';
   find('[data-json-import-panel]').hidden = mode !== 'import';
+  find('[data-json-copy-panel]').hidden = mode !== 'copy';
   setText('#cf-modal-title', title);
   setText('[data-modal-description]', description);
   setModalOpen(true);
@@ -210,6 +212,7 @@ async function closeRequest() {
   await motion(find('[data-modal]'), [{ opacity: 1 }, { opacity: 0 }], 140);
   setModalOpen(false);
   if (dialogMode === 'import') find('[data-paste-json]').value = '';
+  if (dialogMode === 'copy') find('[data-copy-json]').value = '';
   closingModal = false;
   lastFocus?.focus();
 }
@@ -341,6 +344,35 @@ function downloadVariant(config = state, name = editor.name) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+function selectJSON() {
+  const field = find('[data-copy-json]');
+  field.focus();
+  field.select();
+}
+
+function openCopyFallback(text) {
+  find('[data-copy-json]').value = text;
+  openDialog('copy', 'JSON сборки', 'Браузер не разрешил автоматическое копирование. Скопируйте выделенный JSON обычной командой копирования и отправьте его получателю.');
+  selectJSON();
+}
+
+async function copyVariant(config, name, button, status) {
+  if (button.getAttribute('aria-busy') === 'true') return;
+  const text = buildJSON(config, name);
+  button.setAttribute('aria-busy', 'true');
+  status.textContent = 'Копируем JSON…';
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error();
+    await navigator.clipboard.writeText(text);
+    status.textContent = 'JSON скопирован. Можно отправить его получателю для импорта.';
+  } catch {
+    status.textContent = 'Автоматическое копирование недоступно. JSON можно скопировать вручную.';
+    if (button.getClientRects().length > 0) openCopyFallback(text);
+  } finally {
+    button.removeAttribute('aria-busy');
+  }
+}
+
 const actions = {
   computer: () => navigate('config', 'parts'),
   save: () => saveVariant(),
@@ -353,6 +385,12 @@ const actions = {
     const build = library.find(entry => entry.id === data.id);
     if (build) downloadVariant(build.config, build.name);
   },
+  copy: (_, button) => copyVariant(state, editor.name, button, find('[data-editor-copy-status]')),
+  'copy-build': (data, button) => {
+    const build = library.find(entry => entry.id === data.id);
+    if (build) return copyVariant(build.config, build.name, button, button.closest('.cf-build-card').querySelector('[data-copy-status]'));
+  },
+  'select-json': selectJSON,
   import: openImport,
   'import-file': () => find('[data-import-file]').click(),
   'clipboard-read': pasteClipboard,
@@ -378,7 +416,7 @@ root.addEventListener('click', event => {
   if (data.stage) return navigate('config', data.stage);
   const key = Object.keys(mutations).find(name => name in data);
   if (key) return updateConfig(() => mutations[key](data));
-  actions[data.action]?.(data);
+  actions[data.action]?.(data, button);
 });
 
 root.addEventListener('change', event => {
