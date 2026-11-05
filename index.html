@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f2e8">
+<meta name="description" content="Casefolk — концепция мастерской персональных компьютеров. Настройте материал, цвета и охлаждение корпуса MODCASE HYPER в демонстрационном конструкторе.">
+<title>Casefolk — компьютеры с характером</title>
+<link rel="icon" href="./assets/svg/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="./assets/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="./styles.css">
+<script type="module" src="./js/app.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">К содержимому</a>
+<div id="casefolk-preview" aria-label="Casefolk — главная страница и конструктор корпуса" style="position:relative">
+  <div class="cf-demo-banner">Демонстрационный проект Casefolk · заявки и платежи не принимаются</div>
+  <header class="cf-top">
+    <button class="cf-brand" data-go="home" aria-label="Casefolk — на главную"><img class="cf-wordmark" src="./assets/svg/logo-horizontal.svg" width="1008" height="380" alt="Casefolk — на главную"></button>
+    <nav aria-label="Разделы сайта">
+      <button class="cf-nav" data-go="home" aria-current="page">Мастерская</button>
+      <button class="cf-nav" data-go="config">Конструктор</button>
+      <button class="cf-nav" data-action="saved">Моя сборка<span class="cf-save-chip" hidden>1</span></button>
+    </nav>
+    <button class="cf-button cf-light" data-action="discuss">Состав сборки ↗</button>
+  </header>
+  <noscript><p class="cf-no-script">Для работы конструктора включите JavaScript. <a href="./brand.html">Логотип и иконки SVG</a> доступны без него.</p></noscript>
+  <main id="main-content">
+    <div data-screen="home">
+      <section class="cf-hero cf-wrap">
+        <div>
+          <div class="cf-eyebrow">Мастерская персональных компьютеров</div>
+          <h1>Ваш характер.<br>Наша <span>сборка.</span></h1>
+          <p class="cf-hero-copy">Подберём комплектующие, соберём и проверим. А если хочется своего — напечатаем корпус в ваших цветах.</p>
+          <div class="cf-actions"><button class="cf-button" data-go="config">Собрать свой корпус <span aria-hidden="true">↗</span></button><button class="cf-button cf-light" data-action="computer">Подобрать компьютер</button></div>
+          <div class="cf-note">От выбора деталей до первого включения — вместе.</div>
+        </div>
+        <div class="cf-hero-scene">
+          <div class="cf-hero-label">Сделано<br>под вас ✦</div>
+          <div data-scene="hero"></div>
+          <div class="cf-scene-caption"><span>MODCASE HYPER</span><span><span class="cf-dot"></span>Шалфей / сливочный</span></div>
+        </div>
+      </section>
+      <div class="cf-wrap">
+        <section class="cf-services" aria-label="Что делает мастерская">
+          <div class="cf-service"><img class="cf-service-icon" src="./assets/svg/icon-cpu.svg" width="64" height="64" alt="" loading="lazy"><div><h3>Подберём начинку</h3><p>Под ваши задачи и бюджет</p></div></div>
+          <div class="cf-service"><img class="cf-service-icon" src="./assets/svg/icon-filament.svg" width="64" height="64" alt="" loading="lazy"><div><h3>Напечатаем характер</h3><p>Материал, цвет и детали на выбор</p></div></div>
+          <div class="cf-service"><img class="cf-service-icon" src="./assets/svg/icon-tools.svg" width="64" height="64" alt="" loading="lazy"><div><h3>Соберём и проверим</h3><p>Укладка кабелей и проверка под нагрузкой</p></div></div>
+        </section>
+        <section class="cf-start">
+          <div class="cf-section-top"><h2>С чего начнём?</h2><p>Нужен компьютер целиком или только новый дом для ваших комплектующих?</p></div>
+          <div class="cf-choice-grid">
+            <button class="cf-start-choice" data-action="computer"><span><span class="cf-eyebrow">От идеи до включения</span><h3>Компьютер целиком</h3><p>Подберём детали и корпус под работу, игры и всё остальное.</p></span><span class="cf-round-arrow" aria-hidden="true">↗</span></button>
+            <button class="cf-start-choice" data-go="config"><span><span class="cf-eyebrow">Ваши детали — наш корпус</span><h3>Корпус под заказ</h3><p>Настройте MODCASE HYPER: материал, цвет, панели и охлаждение.</p></span><span class="cf-round-arrow" aria-hidden="true">↗</span></button>
+          </div>
+        </section>
+        <section class="cf-process" id="cf-process"><div><h2>Хорошая сборка начинается с разговора.</h2><p>Вы рассказываете о задачах. Мы помогаем выбрать детали и согласовываем каждое решение.</p></div><ol><li><span>01</span> Обсуждаем задачи и бюджет</li><li><span>02</span> Согласовываем состав и внешний вид</li><li><span>03</span> Печатаем, собираем, проверяем</li></ol></section>
+      </div>
+    </div>
+    <div data-screen="config" hidden>
+      <section class="cf-config-head cf-wrap"><button class="cf-breadcrumb" data-go="home">← В мастерскую</button><h1>Соберём ваш корпус.</h1><p>Выберите материал, цвета и охлаждение. Остальное поможем продумать.</p></section>
+      <div class="cf-wrap">
+        <div class="cf-steps" role="tablist" aria-label="Этапы настройки">
+          <button class="cf-step" role="tab" id="cf-tab-case" aria-controls="cf-stage-case" aria-selected="true" data-stage="case"><span class="cf-step-num">01</span>Корпус</button>
+          <button class="cf-step" role="tab" id="cf-tab-parts" aria-controls="cf-stage-parts" aria-selected="false" data-stage="parts"><span class="cf-step-num">02</span>Комплектующие</button>
+          <button class="cf-step" role="tab" id="cf-tab-summary" aria-controls="cf-stage-summary" aria-selected="false" data-stage="summary"><span class="cf-step-num">03</span>Ваша сборка</button>
+        </div>
+        <div class="cf-config-grid">
+          <div class="cf-preview-column">
+            <div class="cf-preview-box">
+              <div class="cf-preview-title"><span>MODCASE HYPER</span><span class="cf-badge">Печать под заказ</span></div>
+              <div data-scene="config"></div>
+              <div class="cf-view-switch" role="group" aria-label="Вид корпуса"><button data-view="outside" aria-pressed="true">Снаружи</button><button data-view="inside" aria-pressed="false">Внутри</button></div>
+              <div class="cf-spec-line"><span data-dimensions>353 × 338 × 202 мм</span><span data-material-label>PETG</span></div>
+            </div>
+            <div class="cf-help"><img class="cf-person" src="./assets/svg/mascot.svg" width="409" height="380" alt=""><p data-helper>Начните с цветов. Я покажу, как будут сочетаться рама и панели.</p></div>
+          </div>
+          <div class="cf-options">
+            <section id="cf-stage-case" role="tabpanel" aria-labelledby="cf-tab-case">
+              <fieldset class="cf-option"><legend><span>01</span>Материал корпуса</legend><div class="cf-option-body cf-materials"><label class="cf-material"><input type="radio" name="cf-material" value="PETG" checked><strong>PETG</strong><small>Практичный выбор.<br>Больше доступных цветов.</small></label><label class="cf-material"><input type="radio" name="cf-material" value="PETG-CF"><strong>PETG-CF</strong><small>С углеволокном.<br>Выразительная матовая фактура.</small></label></div></fieldset>
+              <fieldset class="cf-option"><legend><span>02</span>Цвета вашей сборки</legend><div class="cf-option-body"><div class="cf-color-label"><span>Рама</span><output data-color-name="frame">Шалфей</output></div><div class="cf-swatches" data-swatches="frame" role="group" aria-label="Цвет рамы"></div><div class="cf-color-label"><span>Панели</span><output data-color-name="panel">Сливочный</output></div><div class="cf-swatches" data-swatches="panel" role="group" aria-label="Цвет панелей"></div><p class="cf-hint" data-palette-hint>Оттенок уточним по образцу филамента перед печатью.</p></div></fieldset>
+              <fieldset class="cf-option"><legend><span>03</span>Размер и панели</legend><div class="cf-option-body"><div class="cf-size-buttons"><button class="cf-size" data-size="standard" aria-pressed="true"><b>Стандарт</b><small>353 × 338 × 202 мм</small></button><button class="cf-size" data-size="expanded" aria-pressed="false"><b>Удлинённый</b><small>+80 мм к длине</small></button></div><label class="cf-form-row"><span>Боковая панель</span><select class="cf-select" data-setting="panelType"><option value="mesh">Сетчатая</option><option value="clear">Прозрачная</option></select></label></div></fieldset>
+              <fieldset class="cf-option"><legend><span>04</span>Охлаждение</legend><div class="cf-option-body"><div class="cf-form-row"><label for="cf-fan-size">Размер вентиляторов</label><select id="cf-fan-size" class="cf-select" data-setting="fanSize"><option value="120">120 мм</option><option value="140">140 мм</option></select></div><div class="cf-form-row"><span>Количество</span><div class="cf-counter"><button data-fan-delta="-1" aria-label="Убрать вентилятор">−</button><output data-fan-count aria-live="polite">3</output><button data-fan-delta="1" aria-label="Добавить вентилятор">+</button></div></div><p class="cf-hint">Схему установки согласуем с учётом видеокарты, блока питания и радиатора.</p></div></fieldset>
+              <div class="cf-next-row"><button class="cf-button cf-light" data-action="save">Сохранить вариант</button><button class="cf-button" data-stage="parts">К комплектующим →</button></div><div class="cf-status" role="status" data-save-status></div>
+            </section>
+            <section id="cf-stage-parts" role="tabpanel" aria-labelledby="cf-tab-parts" hidden>
+              <h2 class="cf-summary-title">Что будет внутри?</h2><p class="cf-component-intro">Укажите пожелания. Точные модели подберём с учётом бюджета, наличия и совместимости.</p>
+              <label class="cf-component-field">Для чего нужен компьютер<select class="cf-select" data-part="purpose"><option>Игры и повседневные задачи</option><option>Работа и создание контента</option><option>Тихий домашний компьютер</option><option>Помогите определиться</option></select></label>
+              <label class="cf-component-field">Процессор<select class="cf-select" data-part="cpu"><option>Помогите подобрать</option><option>Платформа AMD</option><option>Платформа Intel</option><option>У меня уже есть процессор</option></select></label>
+              <label class="cf-component-field">Оперативная память<select class="cf-select" data-part="ram"><option>32 ГБ</option><option>16 ГБ</option><option>64 ГБ</option><option>Помогите подобрать</option><option>Используем мою память</option></select></label>
+              <label class="cf-component-field">Материнская плата<select class="cf-select" data-part="motherboard"><option>Подобрать под процессор</option><option>ATX</option><option>microATX</option><option>Mini-ITX</option><option>У меня уже есть плата</option></select></label>
+              <label class="cf-component-field">Видеокарта<select class="cf-select" data-part="gpu"><option>Подобрать под задачи и бюджет</option><option>Используем мою видеокарту</option><option>Без отдельной видеокарты</option></select></label>
+              <label class="cf-component-field">Накопитель<select class="cf-select" data-part="storage"><option>SSD 1 ТБ</option><option>SSD 2 ТБ</option><option>Используем мои накопители</option><option>Помогите подобрать</option></select></label>
+              <div class="cf-next-row"><button class="cf-button cf-light" data-stage="case">← К корпусу</button><button class="cf-button" data-stage="summary">Посмотреть состав →</button></div>
+            </section>
+            <section id="cf-stage-summary" role="tabpanel" aria-labelledby="cf-tab-summary" hidden>
+              <h2 class="cf-summary-title">Уже похоже на ваше.</h2><dl class="cf-summary-list" data-summary></dl><div class="cf-cost"><strong>Рассчитаем после проверки состава</strong><p>Уточним наличие филамента и деталей, стоимость работы и сроки. Сначала согласование — затем изготовление.</p></div><div class="cf-next-row"><button class="cf-button cf-light" data-action="save">Сохранить</button><button class="cf-button" data-action="discuss">Посмотреть состав ↗</button></div><div class="cf-status" role="status" data-summary-status></div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="cf-footer"><span>Casefolk — компьютеры с характером.</span><a class="cf-asset-link" href="./brand.html">Логотип и иконки SVG ↗</a><span>Корпус MODCASE HYPER · печать и сборка Casefolk</span></footer>
+  <div class="cf-prototype-note">Демонстрационный проект · стилизованный предпросмотр · совместимость не подтверждена</div>
+  <div class="cf-modal-layer" data-modal hidden><section class="cf-modal" role="dialog" aria-modal="true" aria-labelledby="cf-modal-title"><button class="cf-modal-close" data-action="close" aria-label="Закрыть">×</button><h2 id="cf-modal-title">Давайте обсудим.</h2><p>Так будет выглядеть состав заявки. В этом макете заявка никуда не отправляется.</p><textarea data-request readonly aria-label="Состав заявки"></textarea><div class="cf-actions"><button class="cf-button" data-action="select-request">Выделить состав</button><button class="cf-button cf-light" data-action="download">Скачать JSON</button><button class="cf-button cf-light" data-action="close">Вернуться</button></div></section></div>
+</div>
+
+</body>
+</html>

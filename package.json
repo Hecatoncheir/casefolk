@@ -1,0 +1,16 @@
+{
+  "name": "casefolk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Демонстрационный сайт Casefolk и векторная айдентика",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "test": "node --test tests/config.test.mjs tests/storage.test.mjs",
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/serve.mjs",
+    "test:browser": "playwright test"
+  },
+  "devDependencies": { "@playwright/test": "1.64.1" }
+}
