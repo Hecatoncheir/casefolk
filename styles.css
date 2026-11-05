@@ -181,3 +181,43 @@
   #casefolk-preview .cf-service:hover .cf-service-icon{transform:translateY(-2px)}
   #casefolk-preview .cf-button:not(:disabled):active,#casefolk-preview .cf-start-choice:active{transform:translateY(0);box-shadow:none}
 }
+
+#casefolk-preview .cf-editor-tools{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;padding-bottom:22px}
+#casefolk-preview .cf-build-name{display:grid;gap:6px;flex:1;min-width:190px;max-width:360px;font-size:11px;font-weight:700}
+#casefolk-preview .cf-name-input{width:100%;min-width:0;border:1px solid var(--cf-line);border-radius:10px;background:var(--cf-white);color:var(--cf-ink);padding:10px 12px;font:inherit;font-size:13px;min-height:42px}
+#casefolk-preview .cf-name-input:focus-visible{outline:3px solid #677b45;outline-offset:3px}
+#casefolk-preview .cf-editor-actions,#casefolk-preview .cf-builds-actions{display:flex;gap:9px;flex-wrap:wrap}
+#casefolk-preview .cf-import-status{width:100%;font-size:11px;color:var(--cf-muted);line-height:1.7}
+#casefolk-preview .cf-import-status:empty{display:none}
+#casefolk-preview .cf-builds-page{padding-block:36px 45px;min-height:65vh}
+#casefolk-preview .cf-builds-head{display:flex;justify-content:space-between;align-items:flex-end;gap:25px;margin-bottom:24px}
+#casefolk-preview .cf-builds-head h1{font-size:42px;line-height:1.15;letter-spacing:-1.5px;margin-top:12px}
+#casefolk-preview .cf-builds-head p{font-size:13px;color:var(--cf-muted);line-height:1.85;max-width:530px;margin-top:14px}
+#casefolk-preview .cf-builds-actions{flex-shrink:0}
+#casefolk-preview .cf-library-notice{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:20px;font-size:12px;color:var(--cf-muted)}
+#casefolk-preview .cf-library-notice p:empty{display:none}
+#casefolk-preview .cf-text-button{border:0;background:none;color:var(--cf-ink);padding:4px 0;text-decoration:underline;text-underline-offset:4px;font-size:12px}
+#casefolk-preview .cf-builds-empty{text-align:center;padding:34px 15px 54px;max-width:470px;margin:auto}
+#casefolk-preview .cf-builds-empty img{display:block;width:144px;height:120px;margin:0 auto 20px}
+#casefolk-preview .cf-builds-empty h2{font-size:25px;letter-spacing:-.7px}
+#casefolk-preview .cf-builds-empty p{font-size:13px;color:var(--cf-muted);margin-top:12px;line-height:1.85}
+#casefolk-preview .cf-builds-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+#casefolk-preview .cf-build-card{background:var(--cf-white);border:1px solid var(--cf-line);border-radius:19px;overflow:hidden;min-width:0}
+#casefolk-preview .cf-build-open{display:block;width:100%;padding:0;text-align:left;border:0;background:none}
+#casefolk-preview .cf-build-picture{display:block;background:#e9ecdf;padding:12px 17px 3px}
+#casefolk-preview .cf-build-picture .cf-scene{max-height:260px}
+#casefolk-preview .cf-build-details{display:grid;gap:8px;padding:18px 19px;font-size:11px;color:var(--cf-muted)}
+#casefolk-preview .cf-build-details strong{font-family:'Nunito',Arial,sans-serif;font-size:21px;line-height:1.25;font-weight:900;color:var(--cf-ink);overflow-wrap:anywhere}
+#casefolk-preview .cf-build-colors{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#casefolk-preview .cf-build-colors i{width:10px;height:10px;border:1px solid #bbbfb1;border-radius:50%;display:inline-block;flex-shrink:0}
+#casefolk-preview .cf-build-colors i:not(:first-child){margin-left:6px}
+#casefolk-preview .cf-build-date{font-size:10px}
+#casefolk-preview .cf-build-open-label{color:var(--cf-ink);font-size:12px;font-weight:800;margin-top:4px}
+#casefolk-preview .cf-build-card-actions{border-top:1px solid var(--cf-line);display:flex;justify-content:space-between;gap:15px;padding:10px 19px}
+#casefolk-preview .cf-build-card-actions button{border:0;background:none;font-size:11px;padding:6px 0;color:var(--cf-muted);min-height:32px}
+#casefolk-preview .cf-build-open:hover .cf-build-open-label{text-decoration:underline;text-underline-offset:4px}
+#casefolk-preview .cf-save-chip{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;min-width:16px;line-height:1.4;text-decoration:none}
+@media(max-width:620px){#casefolk-preview .cf-top nav .cf-nav:nth-child(3){display:block}}
+@media(min-width:621px) and (max-width:850px){#casefolk-preview .cf-top{flex-wrap:wrap}#casefolk-preview .cf-top nav .cf-nav:nth-child(3){display:block}}
+@media(max-width:1000px){#casefolk-preview .cf-builds-head{display:block}#casefolk-preview .cf-builds-actions{margin-top:20px}#casefolk-preview .cf-builds-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){#casefolk-preview .cf-top nav{width:100%;margin-left:0;justify-content:space-between}#casefolk-preview .cf-top nav .cf-nav{display:block;font-size:12px}#casefolk-preview .cf-build-name{max-width:none;width:100%}#casefolk-preview .cf-name-input{font-size:16px}#casefolk-preview .cf-editor-tools{gap:13px}#casefolk-preview .cf-editor-actions{width:100%}#casefolk-preview .cf-builds-grid{grid-template-columns:1fr}#casefolk-preview .cf-builds-head h1{font-size:34px}#casefolk-preview .cf-builds-page{padding-top:27px}#casefolk-preview .cf-build-card-actions button{min-height:44px}#casefolk-preview .cf-build-picture .cf-scene{max-height:300px}}

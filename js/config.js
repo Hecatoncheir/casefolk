@@ -48,15 +48,26 @@ export function normalize(state) {
   return state;
 }
 
+export const choices = {
+  page: ['home', 'config', 'builds'], stage: ['case', 'parts', 'summary'], material: ['PETG', 'PETG-CF'],
+  frame: palette.map(item => item.id), panel: palette.map(item => item.id),
+  size: ['standard', 'expanded'], panelType: ['mesh', 'clear'],
+  fanSize: ['120', '140'], view: ['outside', 'inside'],
+};
+
+export function isConfiguration(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value) || value.version !== 1) return false;
+  const required = ['material', 'frame', 'panel', 'size', 'panelType', 'fanSize'];
+  if (!required.every(key => choices[key].includes(value[key]))) return false;
+  if (!Number.isInteger(value.fans) || value.fans < 0 || value.fans > maxFans(value)) return false;
+  if (!Object.entries(partOptions).every(([key, options]) => options.includes(value.parts?.[key]))) return false;
+  if (value.view !== undefined && !choices.view.includes(value.view)) return false;
+  return ['frame', 'panel'].every(key => availableColors(value.material).some(item => item.id === value[key]));
+}
+
 export function sanitize(value) {
   const state = structuredClone(initial);
   if (!value || typeof value !== 'object' || value.version !== 1) return state;
-  const choices = {
-    page: ['home', 'config'], stage: ['case', 'parts', 'summary'], material: ['PETG', 'PETG-CF'],
-    frame: palette.map(item => item.id), panel: palette.map(item => item.id),
-    size: ['standard', 'expanded'], panelType: ['mesh', 'clear'],
-    fanSize: ['120', '140'], view: ['outside', 'inside'],
-  };
   for (const [key, options] of Object.entries(choices)) {
     if (options.includes(value[key])) state[key] = value[key];
   }

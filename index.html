@@ -21,7 +21,7 @@
     <nav aria-label="Разделы сайта">
       <button class="cf-nav" data-go="home" aria-current="page">Мастерская</button>
       <button class="cf-nav" data-go="config">Конструктор</button>
-      <button class="cf-nav" data-action="saved">Моя сборка<span class="cf-save-chip" hidden>1</span></button>
+      <button class="cf-nav" data-go="builds">Мои сборки<span class="cf-save-chip" hidden>0</span></button>
     </nav>
     <button class="cf-button cf-light" data-action="discuss">Состав сборки ↗</button>
   </header>
@@ -60,6 +60,7 @@
     </div>
     <div data-screen="config" hidden>
       <section class="cf-config-head cf-wrap"><button class="cf-breadcrumb" data-go="home">← В мастерскую</button><h1>Соберём ваш корпус.</h1><p>Выберите материал, цвета и охлаждение. Остальное поможем продумать.</p></section>
+      <div class="cf-editor-tools cf-wrap"><label class="cf-build-name">Название сборки<input class="cf-name-input" data-build-name maxlength="80" placeholder="Например, рабочий компьютер"></label><div class="cf-editor-actions"><button class="cf-button cf-light" data-action="import">Импорт JSON ↑</button><button class="cf-button cf-light" data-action="save-copy" hidden>Сохранить копию</button></div><p class="cf-import-status" data-import-status role="status"></p></div>
       <div class="cf-wrap">
         <div class="cf-steps" role="tablist" aria-label="Этапы настройки">
           <button class="cf-step" role="tab" id="cf-tab-case" aria-controls="cf-stage-case" aria-selected="true" data-stage="case"><span class="cf-step-num">01</span>Корпус</button>
@@ -101,7 +102,14 @@
         </div>
       </div>
     </div>
+    <section data-screen="builds" class="cf-builds-page cf-wrap" hidden>
+      <div class="cf-builds-head"><div><div class="cf-eyebrow">Ваши идеи, сохранённые в деталях</div><h1>Мои сборки</h1><p>Сборки хранятся в этом браузере. Откройте любую в конструкторе или скачайте JSON, чтобы перенести её на другое устройство.</p></div><div class="cf-builds-actions"><button class="cf-button" data-action="new-build">Новая сборка ↗</button><button class="cf-button cf-light" data-action="import">Импорт JSON ↑</button></div></div>
+      <div class="cf-library-notice"><p data-builds-status role="status"></p><button class="cf-text-button" data-action="undo-delete" hidden>Отменить удаление</button></div>
+      <div class="cf-builds-empty" data-builds-empty><img src="./assets/svg/mascot-case.svg" width="144" height="120" alt=""><h2>Здесь будут ваши сборки.</h2><p>Настройте первый вариант в конструкторе и сохраните его. Или начните с импорта JSON.</p></div>
+      <div class="cf-builds-grid" data-builds-grid></div>
+    </section>
   </main>
+  <input type="file" data-import-file accept=".json,application/json" aria-label="Импортировать сборку из JSON" hidden>
   <footer class="cf-footer"><span>Casefolk — компьютеры с характером.</span><a class="cf-asset-link" href="./brand.html">Логотип и иконки SVG ↗</a><span>Корпус MODCASE HYPER · печать и сборка Casefolk</span></footer>
   <div class="cf-prototype-note">Демонстрационный проект · стилизованный предпросмотр · совместимость не подтверждена</div>
   <div class="cf-modal-layer" data-modal hidden><section class="cf-modal" role="dialog" aria-modal="true" aria-labelledby="cf-modal-title"><button class="cf-modal-close" data-action="close" aria-label="Закрыть">×</button><h2 id="cf-modal-title">Давайте обсудим.</h2><p>Так будет выглядеть состав заявки. В этом макете заявка никуда не отправляется.</p><textarea data-request readonly aria-label="Состав заявки"></textarea><div class="cf-actions"><button class="cf-button" data-action="select-request">Выделить состав</button><button class="cf-button cf-light" data-action="download">Скачать JSON</button><button class="cf-button cf-light" data-action="close">Вернуться</button></div></section></div>

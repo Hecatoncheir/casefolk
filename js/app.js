@@ -2,12 +2,19 @@ import { availableColors, color, dimensions, escape, initial, maxFans, normalize
 import { scene } from './preview.js';
 import { readState, writeState } from './storage.js';
 import { motion, reveal } from './motion.js';
+import { buildJSON, cleanName, maxImportBytes, parseBuildJSON } from './build-files.js';
+import { readBuilds, readEditor, removeBuild, restoreBuild, saveBuild, writeEditor } from './build-library.js';
+import { renderBuildGallery } from './build-gallery.js';
 
 const root = document.getElementById('casefolk-preview');
 const find = selector => root.querySelector(selector);
 const all = selector => [...root.querySelectorAll(selector)];
 let state = readState('draft') || structuredClone(initial);
-let saved = readState('saved');
+let library = [];
+let libraryError = '';
+let libraryNotice = '';
+let deletedBuild = null;
+let editor = readEditor();
 let lastFocus = null;
 let closingModal = false;
 const routes = {
@@ -15,6 +22,7 @@ const routes = {
   '#constructor': ['config', 'case'],
   '#components': ['config', 'parts'],
   '#summary': ['config', 'summary'],
+  '#builds': ['builds', 'case'],
 };
 
 function setText(selector, text) {
@@ -24,10 +32,35 @@ function setText(selector, text) {
 function clearStatus() {
   setText('[data-save-status]', '');
   setText('[data-summary-status]', '');
+  setText('[data-import-status]', '');
 }
 
 function persistDraft() {
   writeState('draft', state);
+  writeEditor(editor.id, editor.name);
+}
+
+function refreshLibrary() {
+  try { library = readBuilds(); libraryError = ''; }
+  catch (error) { libraryError = error.message; }
+}
+
+function renderLibrary() {
+  const count = find('.cf-save-chip');
+  count.hidden = library.length === 0;
+  count.textContent = library.length;
+  const editing = library.some(entry => entry.id === editor.id);
+  all('[data-action=save]').forEach(button => {
+    button.textContent = editing ? 'Сохранить изменения' : button.closest('#cf-stage-case') ? 'Сохранить вариант' : 'Сохранить';
+  });
+  find('[data-action=save-copy]').hidden = !editing;
+  find('[data-build-name]').value = editor.name;
+  if (state.page !== 'builds') return;
+  setText('[data-builds-status]', libraryError || libraryNotice);
+  find('[data-builds-status]').setAttribute('role', libraryError ? 'alert' : 'status');
+  find('[data-action=undo-delete]').hidden = !deletedBuild;
+  find('[data-builds-empty]').hidden = library.length > 0 || Boolean(libraryError);
+  renderBuildGallery(find('[data-builds-grid]'), library);
 }
 
 function renderNavigation() {
@@ -42,7 +75,6 @@ function renderNavigation() {
     element.tabIndex = selected ? 0 : -1;
   });
   for (const stage of ['case', 'parts', 'summary']) find(`#cf-stage-${stage}`).hidden = stage !== state.stage;
-  find('.cf-save-chip').hidden = !saved;
 }
 
 function renderSwatches() {
@@ -97,6 +129,7 @@ function render() {
   renderHelper();
   find('[data-summary]').innerHTML = rows(state).map(([key, value]) => `<div><dt>${escape(key)}</dt><dd>${escape(value)}</dd></div>`).join('');
   scene(find('[data-scene=config]'), state, 'config');
+  renderLibrary();
 }
 
 function navigate(page, stage = state.stage, updateHistory = true) {
@@ -104,11 +137,12 @@ function navigate(page, stage = state.stage, updateHistory = true) {
   const previousStage = state.stage;
   state.page = page;
   state.stage = stage;
+  if (page === 'builds') refreshLibrary();
   clearStatus();
   render();
   persistDraft();
   if (updateHistory) {
-    const entry = Object.entries(routes).find(([, value]) => value[0] === page && (page === 'home' || value[1] === stage));
+    const entry = Object.entries(routes).find(([, value]) => value[0] === page && (page !== 'config' || value[1] === stage));
     if (entry && location.hash !== entry[0]) history.pushState(null, '', entry[0]);
   }
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -155,25 +189,75 @@ async function closeRequest() {
   lastFocus?.focus();
 }
 
-function saveVariant() {
-  const success = writeState('saved', state);
-  if (success) saved = structuredClone(state);
-  render();
-  const message = success
-    ? 'Вариант сохранён на этом устройстве. Открыть его можно через «Моя сборка».'
-    : 'Браузер не разрешил сохранение. Можно скачать состав в JSON на последнем шаге.';
+function saveVariant(copy = false) {
+  let message;
+  try {
+    const name = copy && editor.name ? `${editor.name} — копия` : editor.name;
+    const build = saveBuild(state, { id: copy ? null : editor.id, name });
+    editor = { id: build.id, name: build.name };
+    persistDraft();
+    refreshLibrary();
+    render();
+    message = `Сборка «${build.name}» сохранена на этом устройстве в «Моих сборках».`;
+  } catch (error) { message = error.message; }
   setText('[data-save-status]', message);
   setText('[data-summary-status]', message);
 }
 
-function showSaved() {
-  if (saved) state = sanitize(saved);
-  navigate('config', 'summary');
-  if (!saved) setText('[data-summary-status]', 'Сохранённых вариантов пока нет. Настройте корпус и нажмите «Сохранить».');
+function newBuild() {
+  state = structuredClone(initial);
+  editor = { id: null, name: '' };
+  navigate('config', 'case');
 }
 
-function downloadVariant() {
-  const file = new Blob([JSON.stringify(sanitize(state), null, 2)], { type: 'application/json' });
+function openBuild(id) {
+  refreshLibrary();
+  const build = library.find(entry => entry.id === id);
+  if (!build) return;
+  state = sanitize(build.config);
+  editor = { id: build.id, name: build.name };
+  navigate('config', 'case');
+}
+
+function deleteBuild(id) {
+  try {
+    deletedBuild = removeBuild(id);
+    libraryNotice = deletedBuild ? `Сборка «${deletedBuild.name}» удалена.` : '';
+    refreshLibrary();
+  } catch (error) { libraryError = error.message; }
+  render();
+}
+
+function undoDelete() {
+  if (!deletedBuild) return;
+  try {
+    restoreBuild(deletedBuild);
+    deletedBuild = null;
+    libraryNotice = 'Сборка восстановлена.';
+    refreshLibrary();
+  } catch (error) { libraryError = error.message; }
+  render();
+}
+
+async function importBuild(file) {
+  if (!file) return;
+  try {
+    if (file.size > maxImportBytes) throw new Error('Файл слишком большой. Выберите JSON одной сборки размером до 256 КБ.');
+    const imported = parseBuildJSON(await file.text());
+    state = imported.config;
+    editor = { id: null, name: imported.name || cleanName(file.name.replace(/\.json$/i, '')) };
+    navigate('config', 'case');
+    setText('[data-import-status]', 'JSON импортирован. Сохраните вариант, чтобы добавить его в «Мои сборки».');
+    find('[data-import-status]').setAttribute('role', 'status');
+  } catch (error) {
+    if (state.page !== 'config') navigate('config', 'case');
+    setText('[data-import-status]', error.message);
+    find('[data-import-status]').setAttribute('role', 'alert');
+  }
+}
+
+function downloadVariant(config = state, name = editor.name) {
+  const file = new Blob([buildJSON(config, name)], { type: 'application/json' });
   const url = URL.createObjectURL(file);
   const link = document.createElement('a');
   link.href = url;
@@ -184,11 +268,20 @@ function downloadVariant() {
 
 const actions = {
   computer: () => navigate('config', 'parts'),
-  save: saveVariant,
-  saved: showSaved,
+  save: () => saveVariant(),
+  'save-copy': () => saveVariant(true),
+  'new-build': newBuild,
+  'open-build': data => openBuild(data.id),
+  'delete-build': data => deleteBuild(data.id),
+  'undo-delete': undoDelete,
+  'download-build': data => {
+    const build = library.find(entry => entry.id === data.id);
+    if (build) downloadVariant(build.config, build.name);
+  },
+  import: () => find('[data-import-file]').click(),
   discuss: openRequest,
   close: closeRequest,
-  download: downloadVariant,
+  download: () => downloadVariant(),
   'select-request': () => { const field = find('[data-request]'); field.focus(); field.select(); },
 };
 
@@ -207,14 +300,30 @@ root.addEventListener('click', event => {
   if (data.stage) return navigate('config', data.stage);
   const key = Object.keys(mutations).find(name => name in data);
   if (key) return updateConfig(() => mutations[key](data));
-  actions[data.action]?.();
+  actions[data.action]?.(data);
 });
 
 root.addEventListener('change', event => {
   const element = event.target;
+  if (element.matches('[data-import-file]')) {
+    importBuild(element.files[0]);
+    element.value = '';
+    return;
+  }
   if (element.name === 'cf-material') return updateConfig(() => { state.material = element.value; });
   if (element.dataset.setting) return updateConfig(() => { state[element.dataset.setting] = element.value; });
   if (element.dataset.part) updateConfig(() => { state.parts[element.dataset.part] = element.value; });
+});
+
+find('[data-build-name]').addEventListener('input', event => {
+  editor.name = event.target.value;
+  writeEditor(editor.id, editor.name);
+});
+
+window.addEventListener('storage', event => {
+  if (event.key !== 'casefolk:v1:builds' && event.key !== null) return;
+  refreshLibrary();
+  renderLibrary();
 });
 
 function handleModalKey(event) {
@@ -252,7 +361,8 @@ find('[data-modal]').addEventListener('click', event => {
 window.addEventListener('popstate', applyRoute);
 window.addEventListener('hashchange', applyRoute);
 scene(find('[data-scene=hero]'), { ...initial, fans: 3 }, 'hero');
+refreshLibrary();
 const route = routes[location.hash];
 if (route) [state.page, state.stage] = route;
 render();
-reveal(find(state.page === 'home' ? '.cf-hero' : '.cf-config-head'), 400);
+reveal(find({ home: '.cf-hero', config: '.cf-config-head', builds: '.cf-builds-head' }[state.page]), 400);

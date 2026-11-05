@@ -13,7 +13,7 @@ for (const name of files) {
   assert.match(source, /<path\b/, `${name}: нет векторных контуров`);
   assert.doesNotMatch(source, /<(?:image|foreignObject|script)\b|data:image|base64|(?:href|src)=["']https?:/i, `${name}: растровый или внешний ресурс`);
 }
-for (const name of ['index.html', 'brand.html', 'styles.css', 'brand.css', 'js/app.js', 'js/config.js', 'js/preview.js', 'js/storage.js', 'js/motion.js']) {
+for (const name of ['index.html', 'brand.html', 'styles.css', 'brand.css', 'js/app.js', 'js/config.js', 'js/preview.js', 'js/storage.js', 'js/motion.js', 'js/build-files.js', 'js/build-library.js', 'js/build-gallery.js']) {
   const source = await readFile(new URL(name, root), 'utf8');
   assert.doesNotMatch(source, /window\.openai|globalThis\.Tweak|__CASEFOLK|data:image/, `${name}: осталась зависимость от макета`);
   if (name.endsWith('.js')) {

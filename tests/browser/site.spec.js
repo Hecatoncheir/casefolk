@@ -54,14 +54,17 @@ test('материал, цвет и габариты отражаются в и�
 
 test('сохранённый вариант переживает перезагрузку и последующее редактирование черновика', async ({ page }) => {
   await page.goto('./#constructor');
+  await page.locator('[data-build-name]').fill('Терракотовый');
   await page.locator('[data-color-group=frame][data-color=terracotta]').click();
   await page.getByRole('button', { name: 'Сохранить вариант', exact: true }).click();
   await page.locator('[data-color-group=frame][data-color=blue]').click();
   await page.reload();
   await expect(page.locator('[data-color-name=frame]')).toHaveText('Серо-голубой');
-  await page.getByRole('button', { name: 'Моя сборка', exact: false }).click();
-  await expect(page.locator('[data-summary]')).toContainText('Терракота / Сливочный');
-  await expect(page.locator('[data-summary]')).not.toContainText('Серо-голубой');
+  await page.getByRole('button', { name: 'Мои сборки', exact: false }).click();
+  await expect(page.locator('.cf-build-card')).toHaveCount(1);
+  await page.locator('.cf-build-open').click();
+  await expect(page).toHaveURL(/#constructor$/);
+  await expect(page.locator('[data-color-name=frame]')).toHaveText('Терракота');
 });
 
 test('состав можно скачать в JSON, окно закрывается клавишей Escape', async ({ page }) => {
@@ -81,7 +84,7 @@ test('состав можно скачать в JSON, окно закрывае�
 test('страницы помещаются на мобильном экране, при увеличении и без горизонтальной прокрутки', async ({ page }) => {
   for (const width of [320, 390, 768]) {
     await page.setViewportSize({ width, height: 850 });
-    for (const route of ['./', './#constructor', './brand.html']) {
+    for (const route of ['./', './#constructor', './#builds', './brand.html']) {
       await page.goto(route);
       await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     }
