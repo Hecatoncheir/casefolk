@@ -84,6 +84,11 @@ function renderHelper() {
     summary: 'Характер уже есть! Это эскиз конфигурации — точные модели, совместимость и стоимость ещё предстоит определить.',
   };
   setText('[data-helper]', hints[state.stage]);
+  const portraits = find('.cf-helper-portraits');
+  const previous = portraits.dataset.stage;
+  all('[data-mascot-stage]').forEach(image => { image.hidden = image.dataset.mascotStage !== state.stage; });
+  portraits.dataset.stage = state.stage;
+  if (previous && previous !== state.stage) reveal(find(`[data-mascot-stage="${state.stage}"]`), 220, 3);
 }
 
 function render() {

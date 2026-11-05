@@ -117,3 +117,19 @@ test('при уменьшении движения переходы и смен�
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toBeHidden();
 });
+
+test('персонаж меняется вместе с этапом конструктора, включая возврат назад', async ({ page }) => {
+  await page.goto('./#constructor');
+  const visible = page.locator('[data-mascot-stage]:visible');
+  for (const stage of ['case', 'parts', 'summary']) {
+    await expect(visible).toHaveCount(1);
+    await expect(visible).toHaveAttribute('data-mascot-stage', stage);
+    await expect.poll(() => visible.evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
+    await settle(page);
+    await page.locator('.cf-help').screenshot({ path: `.artifacts/mascot-${stage}.png` });
+    if (stage === 'case') await page.getByRole('button', { name: 'К комплектующим →' }).click();
+    if (stage === 'parts') await page.getByRole('button', { name: 'Посмотреть состав →' }).click();
+  }
+  await page.getByRole('tab', { name: 'Корпус', exact: false }).click();
+  await expect(visible).toHaveAttribute('data-mascot-stage', 'case');
+});

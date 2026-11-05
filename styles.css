@@ -83,7 +83,8 @@
 #casefolk-preview .cf-view-switch button[aria-pressed=true]{background:var(--cf-ink);color:var(--cf-paper)}
 #casefolk-preview .cf-spec-line{display:flex;justify-content:space-between;gap:10px;font-size:10px;margin-top:19px;padding-top:13px;border-top:1px solid #cbd1c0}
 #casefolk-preview .cf-help{display:flex;align-items:center;gap:12px;margin-top:18px;padding:0 4px}
-#casefolk-preview .cf-help .cf-person{width:70px;flex-shrink:0}
+#casefolk-preview .cf-helper-portraits{width:96px;aspect-ratio:6/5;flex-shrink:0;display:grid;align-items:center}
+#casefolk-preview .cf-help .cf-person{width:96px;aspect-ratio:6/5;display:block}
 #casefolk-preview .cf-help p{font-size:10px;color:var(--cf-muted);line-height:1.8}
 #casefolk-preview .cf-options{min-width:0}
 #casefolk-preview .cf-option{border-bottom:1px solid var(--cf-line);padding-bottom:19px;margin-bottom:19px;min-inline-size:0;margin-inline:0;padding-inline:0;border-inline:0;border-top:0}
