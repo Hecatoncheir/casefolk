@@ -18,5 +18,8 @@
 .brand-inverse a{display:inline-flex;font-size:12px;color:#dce5c9;margin-top:20px;text-underline-offset:5px}
 .brand-note{font-size:12px;line-height:1.9;color:#686b60;margin-top:24px!important;max-width:760px}
 .brand-note a{color:inherit;text-underline-offset:4px}
+@media(prefers-reduced-motion:no-preference){.brand-head{animation:brand-enter 400ms cubic-bezier(.22,1,.36,1) both}.brand-card{transition:transform 220ms cubic-bezier(.22,1,.36,1),box-shadow 220ms}.brand-art img{transition:transform 260ms cubic-bezier(.22,1,.36,1)}}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){.brand-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px #20251e0d}.brand-card:hover .brand-art img{transform:scale(1.025)}}
+@keyframes brand-enter{from{opacity:.75;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:760px){.brand-head{display:block}.brand-head .cf-button{margin-top:22px}.brand-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.brand-inverse{grid-template-columns:1fr;gap:25px}#casefolk-preview .brand-head h1{font-size:36px}}
 @media(max-width:450px){.brand-grid{grid-template-columns:1fr}.brand-card:first-child{grid-column:auto}.brand-art{height:225px}.brand-nav{font-size:10px}#casefolk-preview .brand-head h1{font-size:33px}.brand-main{padding-block:28px}}

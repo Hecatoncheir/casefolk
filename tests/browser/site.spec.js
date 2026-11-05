@@ -1,5 +1,12 @@
 import { test, expect } from '@playwright/test';
 
+async function settle(page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await Promise.all(document.getAnimations().map(animation => animation.finished.catch(() => {})));
+  });
+}
+
 test('главная и конструктор работают по пути GitHub Pages без ошибок ресурсов', async ({ page }) => {
   const failures = [];
   page.on('pageerror', error => failures.push(error.message));
@@ -10,8 +17,13 @@ test('главная и конструктор работают по пути Gi
     font: getComputedStyle(element).fontFamily,
     color: getComputedStyle(element).color,
     button: getComputedStyle(element.querySelector('.cf-button:not(.cf-light)')).backgroundColor,
+    heading: getComputedStyle(element.querySelector('h1')).fontFamily,
+    technical: getComputedStyle(element.querySelector('[data-dimensions]')).fontFamily,
   }));
-  expect(appearance.font).toContain('Manrope');
+  expect(appearance.font).toContain('Nunito Sans');
+  expect(appearance.heading).toContain('Nunito');
+  expect(appearance.heading).not.toContain('Sans');
+  expect(appearance.technical).toContain('JetBrains Mono');
   expect(appearance.color).toBe('rgb(32, 37, 30)');
   expect(appearance.button).toBe('rgb(32, 37, 30)');
   await expect(page.getByRole('heading', { name: 'Ваш характер. Наша сборка.' })).toBeVisible();
@@ -19,6 +31,7 @@ test('главная и конструктор работают по пути Gi
   await expect(page.locator('[data-screen=config]')).toBeVisible();
   await expect(page).toHaveURL(/#constructor$/);
   await expect.poll(() => page.locator('.cf-wordmark').evaluate(image => image.naturalWidth)).toBeGreaterThan(0);
+  await settle(page);
   await page.screenshot({ path: '.artifacts/constructor-desktop.png', fullPage: true });
   expect(failures).toEqual([]);
 });
@@ -28,6 +41,7 @@ test('материал, цвет и габариты отражаются в и�
   await page.locator('[data-color-group=frame][data-color=terracotta]').click();
   await page.locator('[name=cf-material][value=PETG-CF]').check();
   await expect(page.locator('[data-color-name=frame]')).toHaveText('Графит');
+  await expect.poll(() => page.locator('[data-scene=config] g > path').first().evaluate(element => getComputedStyle(element).fill)).toBe('rgb(52, 57, 54)');
   await expect(page.locator('[data-swatches=frame] button')).toHaveCount(2);
   await page.locator('[data-size=expanded]').click();
   await expect(page.locator('[data-dimensions]')).toHaveText('433 × 338 × 202 мм');
@@ -74,6 +88,7 @@ test('страницы помещаются на мобильном экране
   }
   await page.setViewportSize({ width: 390, height: 850 });
   await page.goto('./#constructor');
+  await settle(page);
   await page.screenshot({ path: '.artifacts/constructor-mobile.png', fullPage: true });
 });
 
@@ -88,4 +103,17 @@ test('на странице айдентики загружаются SVG и д�
   const response = await request.get(await link.getAttribute('href'));
   expect(response.status()).toBe(200);
   expect(response.headers()['content-type']).toContain('application/zip');
+});
+
+test('при уменьшении движения переходы и смена цвета работают без анимации', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Собрать свой корпус', exact: false }).click();
+  await page.locator('[data-color-group=frame][data-color=blue]').click();
+  await expect(page.locator('[data-color-name=frame]')).toHaveText('Серо-голубой');
+  expect(await page.evaluate(() => document.getAnimations().filter(animation => animation.playState === 'running').length)).toBe(0);
+  await page.getByRole('button', { name: 'Состав сборки ↗', exact: true }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeHidden();
 });

@@ -1,10 +1,21 @@
 import {color, escape} from './config.js';
+import {reveal} from './motion.js';
 
   function fan(cx,cy,r,ink,paper){
     return `<g transform="translate(${cx} ${cy})"><circle r="${r}" fill="${ink}"/><circle r="${r-5}" fill="${paper}"/>${Array.from({length:7},(_,i)=>`<path d="M0 -8 C${r*.62} ${-r*.9} ${r*.98} ${-r*.56} ${r*.58} ${-r*.08} C${r*.3} ${r*.13} 8 9 0 6Z" fill="${ink}" transform="rotate(${i*360/7})"/>`).join('')}<circle r="${r*.2}" fill="${paper}" stroke="${ink}" stroke-width="3"/></g>`;
   }
   export function scene(host,settings,tag){
-    const frame=color(settings.frame).hex,panel=color(settings.panel).hex,ink='#262c25';
+    host.style.setProperty('--cf-case-frame',color(settings.frame).hex);
+    host.style.setProperty('--cf-case-panel',color(settings.panel).hex);
+    const description=`Стилизованный предпросмотр MODCASE HYPER: рама ${color(settings.frame).name}, панели ${color(settings.panel).name}, ${settings.fans} вентиляторов`;
+    const key=JSON.stringify([settings.size,settings.panelType,settings.view,settings.fans]);
+    if(host.dataset.sceneKey===key){
+      host.firstElementChild.setAttribute('aria-label',description);
+      return;
+    }
+    const replacing=host.childElementCount>0;
+    host.dataset.sceneKey=key;
+    const frame='var(--cf-case-frame)',panel='var(--cf-case-panel)',ink='#262c25';
     const width=settings.size==='expanded'?240:200,left=settings.size==='expanded'?40:80;
     const top=settings.size==='expanded'?92:105;
     const meshId=`cf-mesh-${tag}`,topId=`cf-lines-${tag}`;
@@ -42,4 +53,5 @@ import {color, escape} from './config.js';
       </g>
       ${extra?`<g transform="matrix(1 .325 1 -.4815 ${left} ${top})">${Array.from({length:Math.min(extra,2)},(_,i)=>fan(extra===1?width/2:(i===0?width*.27:width*.73),67,36,ink,panel)).join('')}</g>`:''}
     </svg>`;
+    if(replacing&&!host.closest('[hidden]'))reveal(host.firstElementChild,180,2);
   }

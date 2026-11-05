@@ -1,6 +1,7 @@
 import { availableColors, color, dimensions, escape, initial, maxFans, normalize, requestText, rows, sanitize } from './config.js';
 import { scene } from './preview.js';
 import { readState, writeState } from './storage.js';
+import { motion, reveal } from './motion.js';
 
 const root = document.getElementById('casefolk-preview');
 const find = selector => root.querySelector(selector);
@@ -8,6 +9,7 @@ const all = selector => [...root.querySelectorAll(selector)];
 let state = readState('draft') || structuredClone(initial);
 let saved = readState('saved');
 let lastFocus = null;
+let closingModal = false;
 const routes = {
   '#home': ['home', 'case'],
   '#constructor': ['config', 'case'],
@@ -93,6 +95,8 @@ function render() {
 }
 
 function navigate(page, stage = state.stage, updateHistory = true) {
+  const previousPage = state.page;
+  const previousStage = state.stage;
   state.page = page;
   state.stage = stage;
   clearStatus();
@@ -103,6 +107,8 @@ function navigate(page, stage = state.stage, updateHistory = true) {
     if (entry && location.hash !== entry[0]) history.pushState(null, '', entry[0]);
   }
   window.scrollTo({ top: 0, behavior: 'instant' });
+  if (previousPage !== page) reveal(find(`[data-screen="${page}"]`), 320);
+  else if (previousStage !== stage) reveal(find(`#cf-stage-${stage}`), 240);
 }
 
 function applyRoute() {
@@ -130,11 +136,17 @@ function openRequest() {
   setText('.cf-modal p', 'Это демонстрация состава. Заявка никуда не отправляется; текст и JSON можно сохранить себе.');
   find('[data-request]').value = requestText(state);
   setModalOpen(true);
+  motion(find('[data-modal]'), [{ opacity: 0 }, { opacity: 1 }], 180);
+  reveal(find('.cf-modal'), 240, 8);
   find('[data-action=close]').focus();
 }
 
-function closeRequest() {
+async function closeRequest() {
+  if (closingModal || find('[data-modal]').hidden) return;
+  closingModal = true;
+  await motion(find('[data-modal]'), [{ opacity: 1 }, { opacity: 0 }], 140);
   setModalOpen(false);
+  closingModal = false;
   lastFocus?.focus();
 }
 
@@ -238,3 +250,4 @@ scene(find('[data-scene=hero]'), { ...initial, fans: 3 }, 'hero');
 const route = routes[location.hash];
 if (route) [state.page, state.stage] = route;
 render();
+reveal(find(state.page === 'home' ? '.cf-hero' : '.cf-config-head'), 400);

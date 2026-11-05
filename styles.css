@@ -1,7 +1,9 @@
 *{box-sizing:border-box}html{scroll-behavior:smooth;background:#f7f2e8}body{margin:0}button,a,input,select,textarea{font:inherit}button{cursor:pointer}.skip-link{position:absolute;top:-80px;left:20px;z-index:20;background:#20251e;color:#fff;padding:12px 20px;border-radius:10px}.skip-link:focus{top:12px}
-@font-face{font-family:Manrope;font-style:normal;font-weight:400 800;font-display:swap;src:url('./assets/fonts/manrope.woff2') format('woff2')}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:200 1000;font-display:swap;src:url('./assets/fonts/nunito.woff2') format('woff2')}
+@font-face{font-family:'Nunito Sans';font-style:normal;font-weight:200 1000;font-display:swap;src:url('./assets/fonts/nunito-sans.woff2') format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:100 800;font-display:swap;src:url('./assets/fonts/jetbrains-mono.woff2') format('woff2')}
 
-#casefolk-preview{--cf-paper:#f7f2e8;--cf-white:#fffdf8;--cf-ink:#20251e;--cf-muted:#686b60;--cf-line:#d8d6c8;--cf-accent:#dce5c9;color-scheme:light;color:var(--cf-ink);font:14px/1.6 Manrope,Arial,sans-serif;background:var(--cf-paper);border-radius:18px;overflow:hidden;isolation:isolate}
+#casefolk-preview{--cf-paper:#f7f2e8;--cf-white:#fffdf8;--cf-ink:#20251e;--cf-muted:#686b60;--cf-line:#d8d6c8;--cf-accent:#dce5c9;color-scheme:light;color:var(--cf-ink);font:14px/1.6 'Nunito Sans',Arial,sans-serif;background:var(--cf-paper);border-radius:18px;overflow:hidden;isolation:isolate}
 #casefolk-preview *{box-sizing:border-box}
 #casefolk-preview [hidden]{display:none!important}
 #casefolk-preview button,#casefolk-preview input,#casefolk-preview select{font:inherit}
@@ -133,7 +135,7 @@
 #casefolk-preview .cf-modal h2{font-size:24px;margin-bottom:12px}
 #casefolk-preview .cf-modal p{font-size:12px;color:var(--cf-muted);margin-bottom:17px}
 #casefolk-preview .cf-modal-close{float:right;width:30px;height:30px;background:none;border:1px solid var(--cf-line);border-radius:50%;font-size:18px;margin-left:12px}
-#casefolk-preview .cf-modal textarea{font:11px/1.8 Manrope,Arial,sans-serif;width:100%;height:210px;resize:vertical;background:var(--cf-white);border:1px solid var(--cf-line);border-radius:10px;color:var(--cf-ink);padding:13px}
+#casefolk-preview .cf-modal textarea{font:11px/1.8 'Nunito Sans',Arial,sans-serif;width:100%;height:210px;resize:vertical;background:var(--cf-white);border:1px solid var(--cf-line);border-radius:10px;color:var(--cf-ink);padding:13px}
 #casefolk-preview .cf-save-chip{font-size:9px;background:var(--cf-accent);border-radius:20px;padding:2px 6px;margin-left:5px}
 #casefolk-preview .cf-top .cf-button{min-height:36px;padding:8px 13px;font-size:10px;white-space:nowrap}
 @media(min-width:1100px){#casefolk-preview .cf-hero h1{font-size:64px}}
@@ -161,3 +163,20 @@
 @media(max-width:850px){#casefolk-preview .cf-wordmark{width:160px}}
 @media(max-width:620px){#casefolk-preview .cf-wordmark{width:145px}#casefolk-preview .cf-footer{font-size:11px}#casefolk-preview .cf-nav{min-height:44px}#casefolk-preview .cf-view-switch button{min-height:44px}#casefolk-preview .cf-option legend{margin-top:0}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+#casefolk-preview h1,#casefolk-preview h2,#casefolk-preview h3{font-family:'Nunito',Arial,sans-serif;font-weight:900}
+#casefolk-preview .cf-preview-title,#casefolk-preview .cf-spec-line,#casefolk-preview .cf-size small,#casefolk-preview .cf-counter output,#casefolk-preview .cf-step-num,#casefolk-preview .cf-process li span,#casefolk-preview [data-setting=fanSize]{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:no-preference){
+  #casefolk-preview .cf-button,#casefolk-preview .cf-start-choice{transition:transform 200ms cubic-bezier(.22,1,.36,1),box-shadow 200ms,border-color 200ms,background-color 200ms,color 200ms,filter 200ms}
+  #casefolk-preview .cf-button:active,#casefolk-preview .cf-start-choice:active{transform:translateY(0)}
+  #casefolk-preview .cf-swatch{transition:transform 180ms cubic-bezier(.22,1,.36,1),outline-color 180ms}
+  #casefolk-preview .cf-material,#casefolk-preview .cf-size,#casefolk-preview .cf-view-switch button{transition:background-color 220ms,border-color 220ms,color 220ms}
+  #casefolk-preview .cf-service-icon{transition:transform 260ms cubic-bezier(.22,1,.36,1)}
+  #casefolk-preview .cf-scene path,#casefolk-preview .cf-scene rect,#casefolk-preview .cf-scene circle{transition:fill 280ms ease-out}
+}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){
+  #casefolk-preview .cf-button:not(:disabled):hover,#casefolk-preview .cf-start-choice:hover{transform:translateY(-2px);box-shadow:0 5px 12px #20251e12}
+  #casefolk-preview .cf-swatch:hover{transform:scale(1.08)}
+  #casefolk-preview .cf-service:hover .cf-service-icon{transform:translateY(-2px)}
+  #casefolk-preview .cf-button:not(:disabled):active,#casefolk-preview .cf-start-choice:active{transform:translateY(0);box-shadow:none}
+}

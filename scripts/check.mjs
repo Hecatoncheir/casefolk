@@ -13,7 +13,7 @@ for (const name of files) {
   assert.match(source, /<path\b/, `${name}: нет векторных контуров`);
   assert.doesNotMatch(source, /<(?:image|foreignObject|script)\b|data:image|base64|(?:href|src)=["']https?:/i, `${name}: растровый или внешний ресурс`);
 }
-for (const name of ['index.html', 'brand.html', 'styles.css', 'brand.css', 'js/app.js', 'js/config.js', 'js/preview.js', 'js/storage.js']) {
+for (const name of ['index.html', 'brand.html', 'styles.css', 'brand.css', 'js/app.js', 'js/config.js', 'js/preview.js', 'js/storage.js', 'js/motion.js']) {
   const source = await readFile(new URL(name, root), 'utf8');
   assert.doesNotMatch(source, /window\.openai|globalThis\.Tweak|__CASEFOLK|data:image/, `${name}: осталась зависимость от макета`);
   if (name.endsWith('.js')) {
@@ -21,6 +21,8 @@ for (const name of ['index.html', 'brand.html', 'styles.css', 'brand.css', 'js/a
     assert.equal(check.status, 0, check.stderr);
   }
 }
-assert.ok((await stat(new URL('assets/fonts/manrope.woff2', root))).size > 1000, 'Нет шрифта');
+for (const font of ['nunito', 'nunito-sans', 'jetbrains-mono']) {
+  assert.ok((await stat(new URL(`assets/fonts/${font}.woff2`, root))).size > 1000, `Нет шрифта ${font}`);
+}
 assert.ok((await stat(new URL('downloads/casefolk-svg.zip', root))).size > 1000, 'Нет архива SVG');
 console.log(`Проверено ${files.length} настоящих SVG, синтаксис JavaScript и комплектность сайта.`);
