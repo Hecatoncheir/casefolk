@@ -2,7 +2,7 @@ import { availableColors, color, dimensions, escape, initial, maxFans, normalize
 import { scene } from './preview.js';
 import { readState, writeState } from './storage.js';
 import { motion, reveal } from './motion.js';
-import { buildJSON, cleanName, maxImportBytes, parseBuildJSON } from './build-files.js';
+import { buildJSON, checkImportSize, cleanName, maxImportBytes, parseBuildJSON } from './build-files.js';
 import { readBuilds, readEditor, removeBuild, restoreBuild, saveBuild, writeEditor } from './build-library.js';
 import { renderBuildGallery } from './build-gallery.js';
 
@@ -17,6 +17,8 @@ let deletedBuild = null;
 let editor = readEditor();
 let lastFocus = null;
 let closingModal = false;
+let dialogMode = 'request';
+let importRevision = 0;
 const routes = {
   '#home': ['home', 'case'],
   '#constructor': ['config', 'case'],
@@ -169,22 +171,45 @@ function setModalOpen(open) {
   document.body.style.overflow = open ? 'hidden' : '';
 }
 
-function openRequest() {
+function openDialog(mode, title, description) {
+  dialogMode = mode;
   lastFocus = document.activeElement;
-  setText('#cf-modal-title', 'Ваш вариант сборки');
-  setText('.cf-modal p', 'Это демонстрация состава. Заявка никуда не отправляется; текст и JSON можно сохранить себе.');
-  find('[data-request]').value = requestText(state);
+  find('[data-request-panel]').hidden = mode !== 'request';
+  find('[data-json-import-panel]').hidden = mode !== 'import';
+  setText('#cf-modal-title', title);
+  setText('[data-modal-description]', description);
   setModalOpen(true);
   motion(find('[data-modal]'), [{ opacity: 0 }, { opacity: 1 }], 180);
   reveal(find('.cf-modal'), 240, 8);
+}
+
+function openRequest() {
+  find('[data-request]').value = requestText(state);
+  openDialog('request', 'Ваш вариант сборки', 'Это демонстрация состава. Заявка никуда не отправляется; текст и JSON можно сохранить себе.');
   find('[data-action=close]').focus();
+}
+
+function resetClipboardRead() {
+  importRevision += 1;
+  find('[data-action=clipboard-read]').disabled = false;
+  return importRevision;
+}
+
+function openImport() {
+  resetClipboardRead();
+  find('[data-paste-json]').value = '';
+  setText('[data-paste-error]', '');
+  openDialog('import', 'Импорт сборки', 'Выберите JSON-файл или вставьте JSON из буфера обмена. Текущий вариант заменится только после успешной проверки.');
+  find('[data-paste-json]').focus();
 }
 
 async function closeRequest() {
   if (closingModal || find('[data-modal]').hidden) return;
   closingModal = true;
+  resetClipboardRead();
   await motion(find('[data-modal]'), [{ opacity: 1 }, { opacity: 0 }], 140);
   setModalOpen(false);
+  if (dialogMode === 'import') find('[data-paste-json]').value = '';
   closingModal = false;
   lastFocus?.focus();
 }
@@ -239,20 +264,70 @@ function undoDelete() {
   render();
 }
 
+async function applyImport(imported, fallbackName = '') {
+  await closeRequest();
+  state = imported.config;
+  editor = { id: null, name: imported.name || fallbackName };
+  navigate('config', 'case');
+  setText('[data-import-status]', 'JSON импортирован. Сохраните вариант, чтобы добавить его в «Мои сборки».');
+  find('[data-import-status]').setAttribute('role', 'status');
+}
+
+function showImportError(error) {
+  if (dialogMode === 'import' && !find('[data-modal]').hidden) {
+    setText('[data-paste-error]', error.message);
+    return;
+  }
+  if (state.page !== 'config') navigate('config', 'case');
+  setText('[data-import-status]', error.message);
+  find('[data-import-status]').setAttribute('role', 'alert');
+}
+
 async function importBuild(file) {
-  if (!file) return;
+  if (!file || closingModal) return;
+  const revision = resetClipboardRead();
   try {
     if (file.size > maxImportBytes) throw new Error('Файл слишком большой. Выберите JSON одной сборки размером до 256 КБ.');
-    const imported = parseBuildJSON(await file.text());
-    state = imported.config;
-    editor = { id: null, name: imported.name || cleanName(file.name.replace(/\.json$/i, '')) };
-    navigate('config', 'case');
-    setText('[data-import-status]', 'JSON импортирован. Сохраните вариант, чтобы добавить его в «Мои сборки».');
-    find('[data-import-status]').setAttribute('role', 'status');
+    const text = await file.text();
+    if (revision !== importRevision) return;
+    await applyImport(parseBuildJSON(text), cleanName(file.name.replace(/\.json$/i, '')));
+  } catch (error) { showImportError(error); }
+}
+
+async function importPastedJSON() {
+  if (closingModal) return;
+  resetClipboardRead();
+  try {
+    const text = find('[data-paste-json]').value;
+    if (!text.trim()) throw new Error('Вставьте JSON сборки в поле или выберите файл.');
+    await applyImport(parseBuildJSON(text));
+  } catch (error) { showImportError(error); }
+}
+
+async function clipboardText() {
+  try {
+    if (!navigator.clipboard?.readText) throw new Error();
+    return await navigator.clipboard.readText();
+  } catch { throw new Error('Не удалось прочитать буфер. Вставьте JSON в поле обычной командой вставки.'); }
+}
+
+async function pasteClipboard() {
+  const revision = resetClipboardRead();
+  const button = find('[data-action=clipboard-read]');
+  button.disabled = true;
+  find('[data-paste-json]').focus();
+  setText('[data-paste-error]', '');
+  try {
+    const text = await clipboardText();
+    if (revision !== importRevision) return;
+    checkImportSize(text);
+    if (!text.trim()) throw new Error('Буфер обмена пуст. Скопируйте JSON или вставьте текст вручную.');
+    find('[data-paste-json]').value = text;
+    find('[data-paste-json]').focus();
   } catch (error) {
-    if (state.page !== 'config') navigate('config', 'case');
-    setText('[data-import-status]', error.message);
-    find('[data-import-status]').setAttribute('role', 'alert');
+    if (revision === importRevision) showImportError(error);
+  } finally {
+    if (revision === importRevision) button.disabled = false;
   }
 }
 
@@ -278,7 +353,10 @@ const actions = {
     const build = library.find(entry => entry.id === data.id);
     if (build) downloadVariant(build.config, build.name);
   },
-  import: () => find('[data-import-file]').click(),
+  import: openImport,
+  'import-file': () => find('[data-import-file]').click(),
+  'clipboard-read': pasteClipboard,
+  'paste-import': importPastedJSON,
   discuss: openRequest,
   close: closeRequest,
   download: () => downloadVariant(),
@@ -320,6 +398,11 @@ find('[data-build-name]').addEventListener('input', event => {
   writeEditor(editor.id, editor.name);
 });
 
+find('[data-paste-json]').addEventListener('input', () => {
+  resetClipboardRead();
+  setText('[data-paste-error]', '');
+});
+
 window.addEventListener('storage', event => {
   if (event.key !== 'casefolk:v1:builds' && event.key !== null) return;
   refreshLibrary();
@@ -333,7 +416,7 @@ function handleModalKey(event) {
     return;
   }
   if (event.key !== 'Tab') return;
-  const items = all('[data-modal] button, [data-modal] textarea');
+  const items = all('[data-modal] button, [data-modal] textarea').filter(element => !element.disabled && element.getClientRects().length > 0);
   const first = items[0];
   const last = items.at(-1);
   if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }

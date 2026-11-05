@@ -22,3 +22,8 @@ test('некорректный файл не превращается в кон�
   }
   assert.throws(() => parseBuildJSON('{invalid'), /прочитать JSON/);
 });
+
+test('ограничение размера JSON учитывает байты кириллицы, включая вставленный текст', () => {
+  const text = JSON.stringify({ ...initial, name: 'Я'.repeat(140000) });
+  assert.throws(() => parseBuildJSON(text), /слишком большой/);
+});

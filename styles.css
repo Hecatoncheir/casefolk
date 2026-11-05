@@ -217,6 +217,14 @@
 #casefolk-preview .cf-build-card-actions button{border:0;background:none;font-size:11px;padding:6px 0;color:var(--cf-muted);min-height:32px}
 #casefolk-preview .cf-build-open:hover .cf-build-open-label{text-decoration:underline;text-underline-offset:4px}
 #casefolk-preview .cf-save-chip{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;min-width:16px;line-height:1.4;text-decoration:none}
+#casefolk-preview .cf-import-methods{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+#casefolk-preview .cf-import-methods .cf-button{flex:1;padding-inline:12px;font-size:11px}
+#casefolk-preview .cf-json-label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}
+#casefolk-preview .cf-modal [data-paste-json]{font-family:'JetBrains Mono',monospace;font-size:11px;height:210px}
+#casefolk-preview .cf-modal textarea:focus-visible{outline:3px solid #677b45;outline-offset:3px}
+#casefolk-preview .cf-modal .cf-paste-error{color:#844536;font-size:12px;line-height:1.7;margin:10px 0 0}
+#casefolk-preview .cf-paste-error:empty{display:none}
+@media(max-width:620px){#casefolk-preview .cf-modal [data-paste-json]{font-size:16px;height:180px}#casefolk-preview .cf-import-methods{flex-direction:column}}
 @media(max-width:620px){#casefolk-preview .cf-top nav .cf-nav:nth-child(3){display:block}}
 @media(min-width:621px) and (max-width:850px){#casefolk-preview .cf-top{flex-wrap:wrap}#casefolk-preview .cf-top nav .cf-nav:nth-child(3){display:block}}
 @media(max-width:1000px){#casefolk-preview .cf-builds-head{display:block}#casefolk-preview .cf-builds-actions{margin-top:20px}#casefolk-preview .cf-builds-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
