@@ -213,8 +213,8 @@
 #casefolk-preview .cf-build-colors i:not(:first-child){margin-left:6px}
 #casefolk-preview .cf-build-date{font-size:10px}
 #casefolk-preview .cf-build-open-label{color:var(--cf-ink);font-size:12px;font-weight:800;margin-top:4px}
-#casefolk-preview .cf-build-card-actions{border-top:1px solid var(--cf-line);display:flex;justify-content:space-between;gap:8px 15px;flex-wrap:wrap;padding:10px 19px}
-#casefolk-preview .cf-build-card-actions button{border:0;background:none;font-size:11px;padding:6px 0;color:var(--cf-muted);min-height:32px}
+#casefolk-preview .cf-build-card-actions{border-top:1px solid var(--cf-line);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px;padding:10px 19px}
+#casefolk-preview .cf-build-card-actions button{border:0;background:none;font-size:11px;padding:6px 0;color:var(--cf-muted);min-height:32px;text-align:left}
 #casefolk-preview .cf-build-open:hover .cf-build-open-label{text-decoration:underline;text-underline-offset:4px}
 #casefolk-preview .cf-save-chip{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;min-width:16px;line-height:1.4;text-decoration:none}
 #casefolk-preview .cf-build-copy-status{font-size:11px;line-height:1.7;color:var(--cf-muted);padding:0 19px 16px;margin:0}

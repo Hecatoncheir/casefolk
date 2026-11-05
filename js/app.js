@@ -5,6 +5,7 @@ import { motion, reveal } from './motion.js';
 import { buildJSON, checkImportSize, cleanName, maxImportBytes, parseBuildJSON } from './build-files.js';
 import { readBuilds, readEditor, removeBuild, restoreBuild, saveBuild, writeEditor } from './build-library.js';
 import { renderBuildGallery } from './build-gallery.js';
+import { buildShareURL, readSharedBuild } from './share-links.js';
 
 const root = document.getElementById('casefolk-preview');
 const find = selector => root.querySelector(selector);
@@ -154,8 +155,29 @@ function navigate(page, stage = state.stage, updateHistory = true) {
 }
 
 function applyRoute() {
-  const target = routes[location.hash];
-  if (target) navigate(target[0], target[1], false);
+  if (openSharedBuild()) return;
+  const target = routes[location.hash.split('?')[0]];
+  if (target && (state.page !== target[0] || state.stage !== target[1])) navigate(target[0], target[1], false);
+}
+
+function openSharedBuild() {
+  let message;
+  let failed = false;
+  try {
+    const shared = readSharedBuild(location.hash);
+    if (!shared) return false;
+    state = shared.config;
+    editor = { id: null, name: shared.name };
+    message = 'Сборка открыта по ссылке. Сохраните вариант, чтобы добавить его в «Мои сборки».';
+  } catch (error) {
+    message = error.message;
+    failed = true;
+  }
+  navigate('config', 'case', false);
+  history.replaceState(null, '', '#constructor');
+  setText('[data-import-status]', message);
+  find('[data-import-status]').setAttribute('role', failed ? 'alert' : 'status');
+  return true;
 }
 
 function updateConfig(mutate) {
@@ -344,33 +366,65 @@ function downloadVariant(config = state, name = editor.name) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function selectJSON() {
+function selectCopyText() {
   const field = find('[data-copy-json]');
   field.focus();
   field.select();
 }
 
-function openCopyFallback(text) {
+const copyMessages = {
+  json: {
+    pending: 'Копируем JSON…',
+    success: 'JSON скопирован. Можно отправить его получателю для импорта.',
+    fallback: 'Автоматическое копирование недоступно. JSON можно скопировать вручную.',
+    title: 'JSON сборки',
+    description: 'Браузер не разрешил автоматическое копирование. Скопируйте выделенный JSON обычной командой копирования и отправьте его получателю.',
+    label: 'JSON для копирования',
+    select: 'Выделить JSON',
+  },
+  link: {
+    pending: 'Копируем ссылку…',
+    success: 'Ссылка скопирована. По ней сразу откроется эта сборка в конструкторе.',
+    fallback: 'Автоматическое копирование недоступно. Ссылку можно скопировать вручную.',
+    title: 'Ссылка на сборку',
+    description: 'Скопируйте выделенную ссылку и отправьте её получателю. По ней откроется конструктор с названием и параметрами этой сборки.',
+    label: 'Ссылка для копирования',
+    select: 'Выделить ссылку',
+  },
+};
+
+function openCopyFallback(text, messages) {
   find('[data-copy-json]').value = text;
-  openDialog('copy', 'JSON сборки', 'Браузер не разрешил автоматическое копирование. Скопируйте выделенный JSON обычной командой копирования и отправьте его получателю.');
-  selectJSON();
+  find('[data-copy-json]').setAttribute('aria-label', messages.label);
+  setText('[data-action=select-copy]', messages.select);
+  openDialog('copy', messages.title, messages.description);
+  selectCopyText();
 }
 
-async function copyVariant(config, name, button, status) {
+async function copyText(text, type, button, status) {
   if (button.getAttribute('aria-busy') === 'true') return;
-  const text = buildJSON(config, name);
+  const messages = copyMessages[type];
   button.setAttribute('aria-busy', 'true');
-  status.textContent = 'Копируем JSON…';
+  status.textContent = messages.pending;
   try {
     if (!navigator.clipboard?.writeText) throw new Error();
     await navigator.clipboard.writeText(text);
-    status.textContent = 'JSON скопирован. Можно отправить его получателю для импорта.';
+    status.textContent = messages.success;
   } catch {
-    status.textContent = 'Автоматическое копирование недоступно. JSON можно скопировать вручную.';
-    if (button.getClientRects().length > 0) openCopyFallback(text);
+    status.textContent = messages.fallback;
+    if (button.getClientRects().length > 0) openCopyFallback(text, messages);
   } finally {
     button.removeAttribute('aria-busy');
   }
+}
+
+function copyVariant(config, name, button, status) {
+  return copyText(buildJSON(config, name), 'json', button, status);
+}
+
+function shareVariant(config, name, button, status) {
+  try { return copyText(buildShareURL(config, name, location.href), 'link', button, status); }
+  catch (error) { status.textContent = error.message; }
 }
 
 const actions = {
@@ -390,7 +444,12 @@ const actions = {
     const build = library.find(entry => entry.id === data.id);
     if (build) return copyVariant(build.config, build.name, button, button.closest('.cf-build-card').querySelector('[data-copy-status]'));
   },
-  'select-json': selectJSON,
+  share: (_, button) => shareVariant(state, editor.name, button, find('[data-editor-copy-status]')),
+  'share-build': (data, button) => {
+    const build = library.find(entry => entry.id === data.id);
+    if (build) return shareVariant(build.config, build.name, button, button.closest('.cf-build-card').querySelector('[data-copy-status]'));
+  },
+  'select-copy': selectCopyText,
   import: openImport,
   'import-file': () => find('[data-import-file]').click(),
   'clipboard-read': pasteClipboard,
@@ -483,7 +542,9 @@ window.addEventListener('popstate', applyRoute);
 window.addEventListener('hashchange', applyRoute);
 scene(find('[data-scene=hero]'), { ...initial, fans: 3 }, 'hero');
 refreshLibrary();
-const route = routes[location.hash];
-if (route) [state.page, state.stage] = route;
-render();
-reveal(find({ home: '.cf-hero', config: '.cf-config-head', builds: '.cf-builds-head' }[state.page]), 400);
+if (!openSharedBuild()) {
+  const route = routes[location.hash.split('?')[0]];
+  if (route) [state.page, state.stage] = route;
+  render();
+  reveal(find({ home: '.cf-hero', config: '.cf-config-head', builds: '.cf-builds-head' }[state.page]), 400);
+}

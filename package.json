@@ -7,7 +7,7 @@
   "engines": { "node": ">=22" },
   "scripts": {
     "check": "node scripts/check.mjs",
-    "test": "node --test tests/config.test.mjs tests/storage.test.mjs tests/build-library.test.mjs tests/build-files.test.mjs",
+    "test": "node --test tests/config.test.mjs tests/storage.test.mjs tests/build-library.test.mjs tests/build-files.test.mjs tests/share-links.test.mjs",
     "build": "node scripts/build.mjs",
     "dev": "node scripts/serve.mjs",
     "test:browser": "playwright test"
